@@ -1,0 +1,38 @@
+"""
+Constantes globales del juego.
+"""
+
+SCREEN_W, SCREEN_H = 1280, 720
+GAME_ZONE_W = 1060
+HUD_X       = 1060
+HUD_W       = 220
+FPS         = 60
+TILE        = 40
+
+# ── Colores neón ──
+BLACK      = (0, 0, 0)
+WHITE      = (255, 255, 255)
+NEON_GREEN = (57, 255, 20)
+NEON_CYAN  = (0, 255, 255)
+NEON_PINK  = (255, 0, 128)
+NEON_YELLOW= (255, 230, 0)
+NEON_ORANGE= (255, 100, 0)
+NEON_PURPLE= (180, 0, 255)
+NEON_BLUE  = (0, 100, 255)
+DARK_RED   = (150, 0, 30)
+BLOOD_RED  = (180, 0, 40)
+MAGENTA    = (220, 0, 200)
+DIM_GRAY   = (20, 20, 30)
+DIM_GRAY2  = (15, 15, 25)
+
+# ── Jugador ──
+PLAYER_BASE_SPEED  = 5.0
+PLAYER_MAX_HP      = 5
+SHIELD_BASE_RADIUS = 42
+SHIELD_ARC_DEG     = 90
+
+# ── Cuartos ──
+RW       = 2000
+RH       = 800
+WALL_T   = 40
+DOOR_GAP = 160
