@@ -1,7 +1,3 @@
-"""
-Constantes globales del juego.
-"""
-
 SCREEN_W, SCREEN_H = 1280, 720
 GAME_ZONE_W = 1060
 HUD_X       = 1060
@@ -9,7 +5,6 @@ HUD_W       = 220
 FPS         = 60
 TILE        = 40
 
-# ── Colores neón ──
 BLACK      = (0, 0, 0)
 WHITE      = (255, 255, 255)
 NEON_GREEN = (57, 255, 20)
@@ -25,13 +20,11 @@ MAGENTA    = (220, 0, 200)
 DIM_GRAY   = (20, 20, 30)
 DIM_GRAY2  = (15, 15, 25)
 
-# ── Jugador ──
 PLAYER_BASE_SPEED  = 5.0
 PLAYER_MAX_HP      = 5
 SHIELD_BASE_RADIUS = 42
 SHIELD_ARC_DEG     = 90
 
-# ── Cuartos ──
 RW       = 2000
 RH       = 800
 WALL_T   = 40

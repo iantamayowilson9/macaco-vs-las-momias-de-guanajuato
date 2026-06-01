@@ -1,21 +1,11 @@
-"""
-Puertas entre cuartos. Cerradas en combate, abiertas al limpiar la sala.
-"""
 import pygame
 import math
 import random
 from src.constants import *
 from src.font import get_font
 
-#  PUERTA
-# ══════════════════════════════════════════════
 class Door:
-    """
-    Una puerta entre dos cuartos.
-    side: 'top'|'bottom'|'left'|'right'
-    world_x, world_y: posición centro en coords mundo
-    target_room: índice del cuarto al que lleva
-    """
+    """Representa los accesos entre salas que cambian visualmente si están bloqueados o abiertos."""
     def __init__(self, world_x, world_y, side, target_room):
         self.x           = float(world_x)
         self.y           = float(world_y)
@@ -32,7 +22,7 @@ class Door:
         col = NEON_GREEN if self.open else DARK_RED
         pygame.draw.rect(surface, col, (sx, sy, rw, rh))
         pygame.draw.rect(surface, WHITE, (sx, sy, rw, rh), 2)
-        # Etiqueta
+        
         font = get_font(max(8, int(11*z)), bold=True)
         lbl  = "OPEN" if self.open else "LOCK"
         img  = font.render(lbl, True, WHITE)
@@ -40,16 +30,11 @@ class Door:
                            sy + rh//2 - img.get_height()//2))
 
     def player_crosses(self, player):
-        """Devuelve True si el jugador toca la zona de la puerta (y está abierta)."""
+        """Detecta si el jugador colisiona con el área delimitada de la puerta una vez abierta."""
         if not self.open: return False
-        # Hitbox generoso: 50px en el eje corto, 60px en el eje largo
         if self.side in ('left', 'right'):
             return (abs(player.x - self.x) < 50 and
                     abs(player.y - self.y) < 60)
         else:
             return (abs(player.x - self.x) < 60 and
                     abs(player.y - self.y) < 50)
-
-
-# ══════════════════════════════════════════════
-

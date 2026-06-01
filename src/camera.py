@@ -1,45 +1,39 @@
-"""
-Cámara: seguimiento del jugador, screen shake y zoom dinámico.
-"""
 import pygame
 import math
 import random
 from src.constants import *
 from src.font import get_font
 
-#  CÁMARA CON SCREEN SHAKE Y ZOOM DINÁMICO
-# ══════════════════════════════════════════════
 class Camera:
+    """
+    Controla la visualización del juego mediante un sistema de enfoque suave (lerp).
+    Maneja efectos dinámicos como temblor (screen shake), destellos de daño (flash)
+    y paneos automáticos con zoom hacia los cofres.
+    """
     def __init__(self):
-        self.offset_x = 0   # legacy (no usado en render, pero se conserva)
+        self.offset_x = 0   
         self.offset_y = 0
-        self.focus_x  = 640.0   # punto del mundo centrado en pantalla
+        self.focus_x  = 640.0   
         self.focus_y  = 360.0
         self.zoom     = 1.0
         self.target_zoom = 1.0
 
-        # screen shake
         self.shake_intensity = 0
         self.shake_decay      = 0.85
 
-        # paneo libre (para cofre)
         self.free_pan        = False
         self.free_target_x   = 0
         self.free_target_y   = 0
-        self.free_timer      = 0   # frames que dura el paneo
+        self.free_timer      = 0   
 
-        # flash de pantalla
         self.flash_timer  = 0
         self.flash_color  = (255, 0, 0)
         self.flash_alpha  = 0
 
-    # ── Actualizar cada frame ──
     def update(self, player_x, player_y):
-        # Zoom suave
+        """Aplica interpolación para suavizar el movimiento de la cámara y el zoom en cada frame."""
         self.zoom += (self.target_zoom - self.zoom) * 0.08
 
-        # El offset representa el punto del mundo que queremos centrar en pantalla.
-        # Paneo libre (zoom al cofre)
         if self.free_pan:
             self.free_timer -= 1
             self.focus_x += (self.free_target_x - self.focus_x) * 0.12
@@ -47,25 +41,21 @@ class Camera:
             if self.free_timer <= 0:
                 self.free_pan = False
         else:
-            # Seguir al jugador suavemente
             self.focus_x += (player_x - self.focus_x) * 0.15
             self.focus_y += (player_y - self.focus_y) * 0.15
 
-        # Screen shake
         self.shake_intensity *= self.shake_decay
         if self.shake_intensity < 0.5:
             self.shake_intensity = 0
 
-        # Flash
         if self.flash_timer > 0:
             self.flash_timer -= 1
             self.flash_alpha = int(150 * (self.flash_timer / 12))
 
     def world_to_screen(self, wx, wy):
         """
-        Convierte mundo → pantalla.
-        El punto self.focus_x/y del mundo aparece en el centro de la pantalla,
-        escalado desde ese mismo centro. Así el zoom nunca desplaza al jugador.
+        Transforma coordenadas reales del mundo de juego a píxeles de la pantalla.
+        Centra la imagen respecto al foco de la cámara y aplica el offset del screen shake.
         """
         cx = SCREEN_W / 2
         cy = SCREEN_H / 2
@@ -75,7 +65,6 @@ class Camera:
         sy = cy + (wy - self.focus_y) * self.zoom + shake_y
         return int(sx), int(sy)
 
-    # ── Disparadores de efectos ──
     def shake(self, intensity):
         self.shake_intensity = max(self.shake_intensity, intensity)
 
@@ -85,7 +74,7 @@ class Camera:
         self.flash_alpha = 150
 
     def zoom_to(self, wx, wy, zoom_val=1.5, duration=80):
-        """Paneo + zoom hacia un punto del mundo."""
+        """Fuerza a la cámara a apuntar y acercarse temporalmente a un objetivo específico del escenario."""
         self.free_pan      = True
         self.free_target_x = wx
         self.free_target_y = wy
@@ -102,12 +91,7 @@ class Camera:
             surface.blit(s, (0, 0))
 
     def draw_flash_zone(self, surface, zone_w):
-        """Flash solo sobre la zona de juego (no el HUD)."""
         if self.flash_alpha > 0:
             s = pygame.Surface((zone_w, SCREEN_H), pygame.SRCALPHA)
             s.fill((*self.flash_color, self.flash_alpha))
             surface.blit(s, (0, 0))
-
-
-# ══════════════════════════════════════════════
-

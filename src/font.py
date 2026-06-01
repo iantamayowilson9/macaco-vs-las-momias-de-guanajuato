@@ -1,14 +1,13 @@
-"""
-Sistema de fuentes. Usa Earthbound.otf si está disponible,
-consolas como fallback.
-Pon Earthbound.otf en la carpeta assets/fonts/
-"""
 import pygame, os
 
 _FONT_PATH  = os.path.join("assets", "fonts", "Earthbound.otf")
 _font_cache = {}
 
 def get_font(size, bold=False):
+    """
+    Carga y cachea las fuentes para evitar cuello de botella al renderizar texto.
+    Si la fuente personalizada no existe, usa Consolas como respaldo del sistema.
+    """
     key = (size, bold)
     if key not in _font_cache:
         try:

@@ -1,6 +1,3 @@
-"""
-Economía: monedas, ítems de cofre (HP/coins/escudo/velocidad) y cofres neón.
-"""
 import pygame
 import math
 import random
@@ -8,9 +5,8 @@ from src.constants import *
 from src.font import get_font
 from src.effects import FloatingText
 
-#  MONEDA
-# ══════════════════════════════════════════════
 class Coin:
+    """Monedas que saltan inicialmente con físicas simples y son atraídas/recogidas por el jugador."""
     def __init__(self, x, y, value=1):
         self.x     = float(x)
         self.y     = float(y)
@@ -19,22 +15,20 @@ class Coin:
         self.value = value
         self.r     = 7
         self.dead  = False
-        self.timer = 300  # desaparece si nadie la recoge
+        self.timer = 300  
 
     def update(self, player):
-        # Gravedad y fricción
         self.vy  += 0.15
         self.vx  *= 0.95
         self.x   += self.vx
         self.y   += self.vy
-        if self.y > player.y + 500:   # límite inferior
+        if self.y > player.y + 500:   
             self.y = player.y + 500
 
         self.timer -= 1
         if self.timer <= 0:
             self.dead = True
 
-        # Recolección
         dx = player.x - self.x
         dy = player.y - self.y
         if math.hypot(dx, dy) < 30:
@@ -47,10 +41,6 @@ class Coin:
         pygame.draw.circle(surface, NEON_YELLOW, (sx, sy), r)
         pygame.draw.circle(surface, WHITE, (sx, sy), r, 1)
 
-
-# ══════════════════════════════════════════════
-#  ÍTEM DEL COFRE
-# ══════════════════════════════════════════════
 ITEM_TYPES = [
     {"id": "hp",     "label": "+1 HP!",             "color": NEON_GREEN,  "shape": "circle"},
     {"id": "coins",  "label": "+50 MONEDAS!",        "color": NEON_YELLOW, "shape": "rect"},
@@ -59,6 +49,7 @@ ITEM_TYPES = [
 ]
 
 class ChestItem:
+    """Potenciador (upgrade) soltado por un cofre que flota levemente y altera las estadísticas del jugador al contacto."""
     def __init__(self, x, y):
         self.x    = float(x)
         self.y    = float(y)
@@ -76,6 +67,7 @@ class ChestItem:
             self.dead = True
 
     def apply(self, player):
+        """Ejecuta los cambios correspondientes en las variables del jugador según el tipo de ítem obtenido."""
         d = self.data
         if d["id"] == "hp":
             player.hp = min(player.max_hp, player.hp + 1)
@@ -83,14 +75,15 @@ class ChestItem:
             player.coins += 50
         elif d["id"] == "shield":
             player.shield_radius = int(player.shield_radius * 1.10)
-            player.damage = round(player.damage * 1.10, 2)   # escudo más grande → más impulso
+            player.damage = round(player.damage * 1.10, 2)   
         elif d["id"] == "speed":
             player.speed  *= 1.10
-            player.defense = round(player.defense * 1.10, 2)  # más rápido → esquiva mejor
+            player.defense = round(player.defense * 1.10, 2)  
         player.floating_texts.append(
             FloatingText(d["label"], player.x, player.y - 40, d["color"], 26, 80))
 
     def draw(self, surface, camera):
+        """Dibuja la figura geométrica correspondiente al ítem usando una función sinusoidal de flotación."""
         sx, sy = camera.world_to_screen(self.x, self.y + math.sin(self.bob) * 5)
         z = camera.zoom
         r = max(4, int(self.r * z))
@@ -111,11 +104,8 @@ class ChestItem:
             pygame.draw.polygon(surface, c, pts)
             pygame.draw.polygon(surface, WHITE, pts, 2)
 
-
-# ══════════════════════════════════════════════
-#  COFRE NEÓN
-# ══════════════════════════════════════════════
 class Chest:
+    """Contenedor especial que al interactuar expulsa botín y dispara efectos cinematográficos en la cámara."""
     def __init__(self, x, y):
         self.x      = float(x)
         self.y      = float(y)
@@ -131,16 +121,13 @@ class Chest:
         dy = player.y - self.y
         if not self.opened and math.hypot(dx, dy) < 45:
             self.opened = True
-            # Disparar monedas
             for _ in range(15):
                 coins.append(Coin(self.x + random.randint(-10,10),
                                   self.y + random.randint(-10,10), value=5))
-            # Ítem aleatorio
             items.append(ChestItem(self.x, self.y - 50))
             floating_texts.append(
                 FloatingText("¡COFRE ABIERTO!", self.x, self.y - 70,
                              NEON_YELLOW, 30, 90))
-            # Zoom hacia el cofre
             camera.zoom_to(self.x, self.y, zoom_val=1.6, duration=90)
             camera.shake(8)
             self.dead = True
@@ -152,14 +139,8 @@ class Chest:
         hw = max(6, int(28 * z))
         hh = max(4, int(22 * z))
         gv = int(self.glow * 200)
-        glow_col = (gv, gv // 2, 0)
-        # Cuerpo del cofre
+        
         pygame.draw.rect(surface, (180, 100, 0), (sx-hw, sy-hh, hw*2, hh*2))
         pygame.draw.rect(surface, (gv, min(255,gv+100), 0), (sx-hw, sy-hh, hw*2, hh//2))
         pygame.draw.rect(surface, NEON_YELLOW, (sx-hw, sy-hh, hw*2, hh*2), 2)
-        # Cerradura
         pygame.draw.circle(surface, NEON_YELLOW, (sx, sy), max(2, int(5*z)))
-
-
-# ══════════════════════════════════════════════
-

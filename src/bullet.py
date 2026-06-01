@@ -1,15 +1,14 @@
-"""
-Proyectiles enemigos y reflejados. Con trail visual, homing y rebote.
-"""
 import pygame
 import math
 import random
 from src.constants import *
 from src.font import get_font
 
-#  PROYECTIL
-# ══════════════════════════════════════════════
 class Bullet:
+    """
+    Gestiona la física, el renderizado de la estela (trail) y el comportamiento de rebote
+    o persecución (homing) de los proyectiles en juego.
+    """
     def __init__(self, x, y, vx, vy, r=6, color=NEON_GREEN,
                  owner="enemy", bounces=0, homing=False, is_giant=False):
         self.x       = float(x)
@@ -18,7 +17,7 @@ class Bullet:
         self.vy      = float(vy)
         self.r       = r
         self.color   = color
-        self.owner   = owner   # "enemy" o "player"
+        self.owner   = owner   
         self.bounces_left = bounces
         self.homing  = homing
         self.is_giant= is_giant
@@ -26,6 +25,7 @@ class Bullet:
         self.trail   = []
 
     def update(self, walls, player=None):
+        """Actualiza la posición, guarda el historial del rastro y calcula la dirección del homing si está activo."""
         self.trail.append((self.x, self.y))
         if len(self.trail) > 6:
             self.trail.pop(0)
@@ -44,11 +44,10 @@ class Bullet:
         self.x += self.vx
         self.y += self.vy
 
-        # Rebote en paredes del mapa
         for wall in walls:
             if wall.collidepoint(self.x, self.y):
                 if self.bounces_left > 0:
-                    # Determinar rebote eje X o Y
+                    # Invierte vectores de velocidad dependiendo del eje de impacto con la pared
                     if (abs(self.x - wall.left) < 8 or abs(self.x - wall.right) < 8):
                         self.vx *= -1
                     else:
@@ -60,7 +59,7 @@ class Bullet:
                     self.dead = True
 
     def draw(self, surface, camera):
-        # Trail
+        """Dibuja primero las partículas difuminadas de la estela y encima el cuerpo principal de la bala."""
         for i, (tx, ty) in enumerate(self.trail):
             alpha_r = max(1, int(self.r * (i/len(self.trail)) * camera.zoom * 0.7))
             tsx, tsy = camera.world_to_screen(tx, ty)
@@ -69,7 +68,3 @@ class Bullet:
         r = max(2, int(self.r * camera.zoom))
         pygame.draw.circle(surface, self.color, (sx, sy), r)
         pygame.draw.circle(surface, WHITE, (sx, sy), r, 1)
-
-
-# ══════════════════════════════════════════════
-

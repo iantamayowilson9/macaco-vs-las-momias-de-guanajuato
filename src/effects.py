@@ -1,15 +1,11 @@
-"""
-Efectos visuales: textos flotantes neón y partículas de sangre.
-"""
 import pygame
 import math
 import random
 from src.constants import *
 from src.font import get_font
 
-#  TEXTO FLOTANTE NEÓN
-# ══════════════════════════════════════════════
 class FloatingText:
+    """Textos indicadores que suben de posición y pierden opacidad de forma gradual."""
     def __init__(self, text, x, y, color=NEON_YELLOW, size=22, duration=55):
         self.text     = text
         self.x        = float(x)
@@ -35,11 +31,8 @@ class FloatingText:
         img.set_alpha(alpha)
         surface.blit(img, (sx - img.get_width() // 2, sy))
 
-
-# ══════════════════════════════════════════════
-#  PARTÍCULAS DE SANGRE
-# ══════════════════════════════════════════════
 class BloodParticle:
+    """Partículas de impacto que salen despedidas con fricción y se quedan fijas en el suelo al detenerse."""
     def __init__(self, x, y):
         self.x    = float(x)
         self.y    = float(y)
@@ -50,7 +43,7 @@ class BloodParticle:
         self.r    = random.randint(2, 5)
         self.color= random.choice([BLOOD_RED, MAGENTA, DARK_RED])
         self.alive= True
-        self.static = False  # una vez parado, queda pintado en el suelo
+        self.static = False  
 
     def update(self):
         if not self.static:
@@ -65,7 +58,3 @@ class BloodParticle:
         sx, sy = camera.world_to_screen(self.x, self.y)
         r = max(1, int(self.r * camera.zoom))
         pygame.draw.circle(surface, self.color, (sx, sy), r)
-
-
-# ══════════════════════════════════════════════
-
